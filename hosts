@@ -1,0 +1,4 @@
+[units]
+unit1 ansible_host=192.168.0.110 ansible_private_key_file=/home/vagrant/unit1/private_key
+unit2 ansible_host=192.168.0.111 ansible_private_key_file=/home/vagrant/unit2/private_key
+unit3 ansible_host=192.168.0.112 ansible_private_key_file=/home/vagrant/unit3/private_key
