@@ -1,7 +1,9 @@
 ---
-- name: soft docker, net-tools, traceroute install
+- name: Soft required docker-ce, net-tools, traceroute, and nano 6 with yaml highlight install
   hosts: test
   become: true
+  vars:
+    home_dir: /home/vagrant/
 
   tasks:
     - name: apt update
@@ -53,13 +55,13 @@
     - name: unzip nano
       unarchive:
         src: https://nano-editor.org/dist/v6/nano-6.2.tar.gz
-        dest: /home/vagrant
+        dest: "{{ home_dir }}" #/home/vagrant
         remote_src: yes
 
     - name: configure and install nano
       shell: ./configure --disable-dependency-tracking && make install
       args:
-       chdir: /home/vagrant/nano-6.2/
+       chdir: "{{ home_dir }}nano-6.2/"
 
 #    - name: add path for nano
 #      command: export PATH="/usr/local/bin/:$PATH"
@@ -75,7 +77,7 @@
 
     - name: create file .nanorc with setting for hightlight
       copy:
-        dest: "/home/vagrant/.nanorc"
+        dest: "{{ home_dir }}.nanorc"
         content: |
           include "/usr/local/share/nano/*.nanorc"
 
