@@ -2,36 +2,42 @@
 - name: soft docker, net-tools, traceroute install
   hosts: test
   become: true
-  
+
   tasks:
-    - name: apt update 
+    - name: apt update
       apt:
         update_cache: yes
         cache_valid_time: 3600
 
-    - name: install net-tools 
-      apt: 
-        name: net-tools
-        state: present
 
-    - name: install traceroute
-      apt: 
-        name: traceroute
-        state: present
+    - name: remove old nano
+      apt:
+        name: nano
+        state: absent
 
-    - name: install docker
+    - name: install soft and docker
       apt:
         pkg:
+          - libncurses-dev
+          - gcc
+          - make
+          - net-tools
+          - traceroute
           - apt-transport-https
           - ca-certificates
           - curl
           - software-properties-common
+        state: latest
 
     - name: key add
-      command: curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+      apt_key:
+        url: "https://download.docker.com/linux/ubuntu/gpg"
+        state: present
 
     - name: repository add
-      command: sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu focal stable"
+      command: add-apt-repository "deb https://download.docker.com/linux/ubuntu focal stable"
+
+    - name: apt update
       apt:
         update_cache: yes
 
@@ -39,6 +45,41 @@
       apt:
         name: docker-ce
 
-    - name: add user in docker group
-      command: sudo usermod -aG docker ${USER}
+    - name: fix docker permission
+      file:
+        path: /var/run/docker.sock
+        mode: 0666
 
+    - name: unzip nano
+      unarchive:
+        src: https://nano-editor.org/dist/v6/nano-6.2.tar.gz
+        dest: /home/vagrant
+        remote_src: yes
+
+    - name: configure and install nano
+      shell: ./configure --disable-dependency-tracking && make install
+      args:
+       chdir: /home/vagrant/nano-6.2/
+
+#    - name: add path for nano
+#      command: export PATH="/usr/local/bin/:$PATH"
+
+#    - name: create symlink for nano
+#      command: ln -s /usr/local/bin/nano /usr/bin/nano
+
+    - name: create symlink for nano
+      file:
+        src: /usr/local/bin/nano
+        dest: /usr/bin/nano
+        state: link
+
+    - name: create file .nanorc with setting for hightlight
+      copy:
+        dest: "/home/vagrant/.nanorc"
+        content: |
+          include "/usr/local/share/nano/*.nanorc"
+
+
+
+#    - name: add .nanorc file for sintax highlight
+#      shell: echo 'include "/usr/local/share/nano/*.nanorc"' > ~/.nanorc
