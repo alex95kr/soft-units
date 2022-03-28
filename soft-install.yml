@@ -1,0 +1,44 @@
+---
+- name: soft docker, net-tools, traceroute install
+  hosts: test
+  become: true
+  
+  tasks:
+    - name: apt update 
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+
+    - name: install net-tools 
+      apt: 
+        name: net-tools
+        state: present
+
+    - name: install traceroute
+      apt: 
+        name: traceroute
+        state: present
+
+    - name: install docker
+      apt:
+        pkg:
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - software-properties-common
+
+    - name: key add
+      command: curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+
+    - name: repository add
+      command: sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu focal stable"
+      apt:
+        update_cache: yes
+
+    - name: install docker
+      apt:
+        name: docker-ce
+
+    - name: add user in docker group
+      command: sudo usermod -aG docker ${USER}
+
