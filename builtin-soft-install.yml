@@ -74,14 +74,9 @@
         dest: "{{ home_dir }}.nanorc"
         content: 'include "/usr/local/share/nano/*.nanorc"'
 
-
-
-#    - name: add .nanorc file for sintax highlight
-#      shell: echo 'include "/usr/local/share/nano/*.nanorc"' > ~/.nanorc
-
-#    - name: add path for nano
-#      command: export PATH="/usr/local/bin/:$PATH"
-
-#    - name: create symlink for nano
-#      command: ln -s /usr/local/bin/nano /usr/bin/nano
+    - name: Docker-compose download
+      get_url:
+        url: https://github.com/docker/compose/releases/download/v2.3.4/docker-compose-linux-x86_64
+        dest: /usr/local/bin/docker-compose
+        mode: +x
 
