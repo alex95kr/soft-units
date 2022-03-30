@@ -1,0 +1,87 @@
+---
+- name: Builtin module used, Soft required docker-ce, net-tools, traceroute, and nano 6 with yaml highlight install
+  hosts: test
+  become: true
+  vars:
+    home_dir: /home/vagrant/
+
+  tasks:
+    - name: Apt update
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+
+
+    - name: Remove old nano
+      apt:
+        name: nano
+        state: absent
+
+    - name: Install soft and dependencies
+      apt:
+        pkg:
+          - libncurses-dev
+          - gcc
+          - make
+          - net-tools
+          - traceroute
+          - apt-transport-https
+          - ca-certificates
+          - software-properties-common
+        state: latest
+
+    - name: Key docker add
+      ansible.builtin.apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        state: present
+
+    - name: Repository docker add
+      ansible.builtin.apt_repository:
+        repo: deb https://download.docker.com/linux/ubuntu focal stable
+
+    - name: Apt update
+      apt:
+        update_cache: yes
+
+    - name: Install docker-ce
+      apt:
+        name: docker-ce
+
+    - name: Fix docker permission
+      ansible.builtin.file:
+        path: /var/run/docker.sock
+        mode: '0666'
+
+    - name: Unzip nano
+      ansible.builtin.unarchive:
+        src: https://nano-editor.org/dist/v6/nano-6.2.tar.gz
+        dest: "{{ home_dir }}"
+        remote_src: yes
+
+    - name: configure and install nano
+      shell: ./configure --disable-dependency-tracking && make install
+      args:
+       chdir: "{{ home_dir }}nano-6.2/"
+
+    - name: create symlink for nano
+      ansible.builtin.file:
+        src: /usr/local/bin/nano
+        dest: /usr/bin/nano
+        state: link
+
+    - name: create file .nanorc with setting for hightlight
+      ansible.builtin.copy:
+        dest: "{{ home_dir }}.nanorc"
+        content: 'include "/usr/local/share/nano/*.nanorc"'
+
+
+
+#    - name: add .nanorc file for sintax highlight
+#      shell: echo 'include "/usr/local/share/nano/*.nanorc"' > ~/.nanorc
+
+#    - name: add path for nano
+#      command: export PATH="/usr/local/bin/:$PATH"
+
+#    - name: create symlink for nano
+#      command: ln -s /usr/local/bin/nano /usr/bin/nano
+
