@@ -1,5 +1,5 @@
 ---
-- name: Builtin module used, Soft required docker-ce, net-tools, traceroute, and nano 6 with yaml highlight install
+- name: Builtin module used, Soft required docker-ce, docker-compose, net-tools, traceroute, and nano 6 with yaml highlight install
   hosts: test
   become: true
   vars:
@@ -20,6 +20,8 @@
     - name: Install soft and dependencies
       apt:
         pkg:
+          - acl
+          - tree
           - libncurses-dev
           - gcc
           - make
